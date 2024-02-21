@@ -8,27 +8,28 @@ from src.models.Round import Round
 from bs4 import BeautifulSoup
 
 def calculateRating(round_list):
-    
-    # print("Round Rating List count : " + str(len(round_list)))
+    length = len(round_list)
+    print("Round Rating List count : " + str(length))
     
     rating_total = 0
     rating_count = 0
     
-    for rating in round_list:
+    for i, rating in enumerate(round_list):
         if rating.included == 'Yes':
-            # print(rating.roundRating)
+            print(str(i) + ', ' + str(rating.roundRating))
             rating_total = int(rating_total) + int(float(rating.roundRating))
             rating_count += 1
     
-    # print(rating_total)
+    print(rating_total)
     topQuarterNum = math.ceil(rating_count * 0.25)
-    # print(topQuarterNum)
-    
-    for rating in round_list[0:topQuarterNum+1]:
-        if rating.included == 'Yes':
-            # print(rating.roundRating)
-            rating_total = rating_total + rating.roundRating
-            rating_count +=1
+    print(topQuarterNum)
+    recent_rounds = round_list[-topQuarterNum:]
+    # print(recent_rounds)
+    # for rating in recent_rounds:
+    #     if rating.included == 'Yes':
+    #         print(rating.roundRating)
+    #         rating_total = rating_total + int(float(rating.roundRating))
+    #         rating_count +=1
     
     # print(rating_count)
     final_rating = math.ceil(rating_total / rating_count)
@@ -49,6 +50,7 @@ def getUnratedRounds(unratedUrl, round_list, pdga_number, current_rating):
     # print(last_updated_dt)
     table = soup.find('table', id = 'player-results-mpo')
 
+    print('List of Unrated rounds being factored in:')
     for row in table.find_all('tr'):
         
         # Is this tourney after the most recent update? 
@@ -101,6 +103,7 @@ def getUnratedRounds(unratedUrl, round_list, pdga_number, current_rating):
                             newRound.included = 'No'
                         newRound.evaluated = 'No'
                         
+                        print(newRound.tourneyName + ', ' + str(newRound.roundRating))
                         round_list.append(newRound)
     
     
@@ -161,6 +164,9 @@ def main(pdga_number):
     print("Current Rating: " + str(int_rating))
     
     getUnratedRounds(unratedUrl, round_list, pdga_number, 924)
+    
+    # for items in round_list:
+    #     print(str(items.roundRating))
     final_rating = calculateRating(round_list)
     print("Calculated Rating: " + str(final_rating))
     
